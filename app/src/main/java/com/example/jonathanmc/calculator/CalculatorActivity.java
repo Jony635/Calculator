@@ -9,6 +9,18 @@ import android.widget.TextView;
 public class CalculatorActivity extends AppCompatActivity {
 
     private TextView currentnumber;
+    private float lastNum = 0f;
+
+    private enum operations
+    {
+        NO_OP,
+        ADD,
+        SUBTRACT,
+        MULTIPLY,
+        DIVIDE
+    }
+
+    operations actual_operation = operations.NO_OP;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,44 +38,37 @@ public class CalculatorActivity extends AppCompatActivity {
     }
     public void OnOperator(View view)
     {
-        int lastNum = Integer.parseInt(currentnumber.getText().toString());
+        lastNum = Float.parseFloat(currentnumber.getText().toString());
         Button but = (Button) view;
         String buttonText = but.getText().toString();
 
+        if(buttonText.isEmpty() || actual_operation != operations.NO_OP)
+            return;
+        
         switch(buttonText)
         {
             case "*":
             {
-                if(buttonText.isEmpty())
-                    break;
-
-
-
-
-
+                actual_operation = operations.MULTIPLY;
                 break;
             }
             case ":":
             {
-                if(buttonText.isEmpty())
-                    break;
+                actual_operation = operations.DIVIDE;
                 break;
             }
             case "+":
             {
-                if(buttonText.isEmpty())
-                    break;
+                actual_operation = operations.ADD;
                 break;
             }
-            case "-":
-            {
-                if(buttonText.isEmpty())
-                    break;
+            case "-": {
+                actual_operation = operations.SUBTRACT;
                 break;
             }
         }
 
-        currentnumber.setText(currentnumber.getText() + buttonText);
+        currentnumber.setText("");
     }
 
     public void OnResult(View view)
