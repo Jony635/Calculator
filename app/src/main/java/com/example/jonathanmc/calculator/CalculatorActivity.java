@@ -9,9 +9,12 @@ import android.widget.TextView;
 public class CalculatorActivity extends AppCompatActivity {
 
     ///TODO: WE HAVE TO IMPLEMENT THE VIEW ON SCREEN AND THE REAL NUMBER SEPARATELY.
-    private TextView currentnumber;
+    private TextView textView;
+    private int numView = 0;
+
     private float lastNum = 0f;
     private boolean negative = false;
+
 
     private enum operations
     {
@@ -29,15 +32,17 @@ public class CalculatorActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_calculator);
 
-        currentnumber = findViewById(R.id.currnumber);
+         textView = findViewById(R.id.currnumber);
     }
 
     public void OnDigit(View view)
     {
         Button but = (Button) view;
         String buttonText = but.getText().toString();
-        currentnumber.setText(currentnumber.getText() + buttonText);
-        ///TODO: ADD THE NUMBERS TO THE REAL NUMBER WHICH MUST BE IMPLEMENTED.
+
+        numView = Integer.parseInt(Integer.toString(numView) + buttonText);
+        numView *= negative ? -1 : 1;
+        textView.setText(Integer.toString((numView)));
     }
     public void OnOperator(View view)
     {
@@ -47,50 +52,66 @@ public class CalculatorActivity extends AppCompatActivity {
         if(buttonText.isEmpty())
             return;
 
-        String lastNumberString = currentnumber.getText().toString();
+        if(actual_operation != operations.NO_OP )
+        {
+            OnResult(view);
+        }
+
+        String lastNumberString = textView.getText().toString();
         boolean alreadyNumbered = !lastNumberString.isEmpty();
         if(alreadyNumbered)
         {
-            lastNum = Float.parseFloat(currentnumber.getText().toString());
-            currentnumber.setText("");
+            lastNum = Float.parseFloat(textView.getText().toString());
+            textView.setText("");
+            numView = 0;
+            negative = false;
         }
 
         switch(buttonText)
         {
-
             ///TODO: CONCATENATE OPERATIONS WITHOUT HITTING 'EQUAL' EACH TIME.
             case "*":
             {
-                if(actual_operation != operations.NO_OP || !alreadyNumbered)
+               if(!alreadyNumbered)
                     return;
+
+
+
                 actual_operation = operations.MULTIPLY;
                 break;
             }
             case ":":
             {
-                if(actual_operation != operations.NO_OP || !alreadyNumbered)
+                if(!alreadyNumbered)
                     return;
+
+
+
                 actual_operation = operations.DIVIDE;
                 break;
             }
             case "+":
             {
-                if(actual_operation != operations.NO_OP || !alreadyNumbered)
+                if(!alreadyNumbered)
                     return;
+
                 actual_operation = operations.ADD;
                 break;
             }
             case "-":
             {
-                if(actual_operation == operations.NO_OP && alreadyNumbered)
-                    actual_operation = operations.SUBTRACT;
-                else if(!negative)
+                if(!alreadyNumbered && !negative)
                 {
                     negative = true;
-
-                    ///TODO: IT SHOWS A 0, BUT REMEMBERS THE NEGATIVE SIGN. MUST BE CORRECTED.
-                    currentnumber.setText(Integer.toString(-0));
+                    return;
                 }
+
+                if(!alreadyNumbered)
+                    return;
+
+
+                actual_operation = operations.SUBTRACT;
+
 
                 break;
             }
@@ -100,7 +121,7 @@ public class CalculatorActivity extends AppCompatActivity {
     public void OnResult(View view)
     {
         float result = 0f;
-        float secondNum = currentnumber.getText().toString().isEmpty() ? 0 : Float.parseFloat(currentnumber.getText().toString());
+        float secondNum = numView;
         switch(actual_operation)
         {
             case ADD:
@@ -122,18 +143,25 @@ public class CalculatorActivity extends AppCompatActivity {
                 result = lastNum / secondNum;
                 break;
             }
+            case NO_OP:
+            {
+                result = numView;
+                break;
+            }
         }
-        currentnumber.setText(Float.toString( negative ? -1 * result : result));
+        numView = (int)result;
+        textView.setText(Float.toString(result));
         lastNum = 0f;
         actual_operation = operations.NO_OP;
         negative = false;
-        secondNum = 0f;
     }
 
-    public void OnDot(View view)
+    public void OnC(View view)
     {
-       // Button but = (Button) view;
-        //String buttonText = but.getText().toString();
-        //currentnumber.setText(currentnumber.getText() + buttonText);
+       lastNum = 0f;
+       numView = 0;
+       textView.setText("");
+       actual_operation = operations.NO_OP;
+       negative = false;
     }
 }
